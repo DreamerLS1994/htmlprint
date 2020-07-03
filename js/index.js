@@ -49,6 +49,9 @@ $('#print_html').click(() => {
             case "www.jb51.net":
                 executeScriptToCurrentTab(`$(".main-right, .xgcomm, .lbd, .lbd_bot, .pt10, .breadcrumb, .search").remove();$("#topbar, #header, #nav, #submenu, #comments, #footer, #right-share").remove();$("#main").css('display','content'); $("#main").css('float','left'); $("#main").css('width','1000px'); $("#main").css('margin-left','100px'); window.print();`);                break;
 
+            case "jingyan.baidu.com":
+                executeScriptToCurrentTab(`$(".header, .wgt-common-nav, .main-aside, .wrp-exp-share, .exp-item-list, .main-content-bottom, .magzine-list, .footer, .wgt-left-promo, .breadcrumb, .wgt-like, .top-nav-bar, .wgt-comments, .wgt-exp-share").remove();$("#main-content").css('width','auto'); $("#main-content").css('margin','80px');window.print();`);
+                break;
             default:
                 break;
 
