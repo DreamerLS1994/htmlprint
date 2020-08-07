@@ -53,7 +53,9 @@ $('#print_html').click(() => {
             case "jingyan.baidu.com":
                 executeScriptToCurrentTab(`$(".header, .wgt-common-nav, .main-aside, .wrp-exp-share, .exp-item-list, .main-content-bottom, .magzine-list, .footer, .wgt-left-promo, .breadcrumb, .wgt-like, .top-nav-bar, .wgt-comments, .wgt-exp-share").remove();$("#main-content").css('width','auto'); $("#main-content").css('margin','80px');window.print();`);
                 break;
-
+            case "juejin.im":
+                executeScriptToCurrentTab(`$(".recommend-box, .recommended-area, .sidebar, .article-suspended-panel , .main-header-box, .suspension-panel, .article-banner").remove();$("#main-content").css('width','auto'); $("#main-content").css('margin','80px');window.print();`);
+                break;
             default:
                 break;
 
