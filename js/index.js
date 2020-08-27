@@ -56,6 +56,9 @@ $('#print_html').click(() => {
             case "juejin.im":
                 executeScriptToCurrentTab(`$(".recommend-box, .recommended-area, .sidebar, .article-suspended-panel , .main-header-box, .suspension-panel, .article-banner").remove();$("#main-content").css('width','auto'); $("#main-content").css('margin','80px');window.print();`);
                 break;
+            case "www.sohu.com":
+                executeScriptToCurrentTab(`$(".sohu-khd, .groom-read").remove();$("#BAIDU_DUP_fp_wrapper, #BAIDU_DUP_fp_iframe, #main-header, #right-side-bar, #float-btn, #pop-news, #article-do, #articleAllsee, #god_bottom_banner, #left-bottom-ad").remove();$(".main").css('width','900px'); $("#main-content").css('margin','80px');window.print();`);
+                break;
             default:
                 break;
 
