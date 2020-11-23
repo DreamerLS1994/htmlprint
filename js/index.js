@@ -59,6 +59,12 @@ $('#print_html').click(() => {
             case "www.sohu.com":
                 executeScriptToCurrentTab(`$(".sohu-khd, .groom-read").remove();$("#BAIDU_DUP_fp_wrapper, #BAIDU_DUP_fp_iframe, #main-header, #right-side-bar, #float-btn, #pop-news, #article-do, #articleAllsee, #god_bottom_banner, #left-bottom-ad").remove();$(".main").css('width','900px'); $("#main-content").css('margin','80px');window.print();`);
                 break;
+			case "www.zhihu.com":
+                executeScriptToCurrentTab(`$(".AppHeader, .QuestionHeader-tags, .Question-sideColumn, .CornerAnimayedFlex, .ModalExp-content, .CollapsedAnswers-bar").remove();$(".Question-mainColumn").css('width','auto');$("[class='ContentItem-actions Sticky RichContent-actions is-fixed is-bottom']").removeClass("Sticky is-fixed is-bottom"); window.print();`);
+				break;
+			case "zhuanlan.zhihu.com":
+				executeScriptToCurrentTab(`$(".Popover .ShareMenu, .like, .CornerAnimayedFlex , .Recommendations-Main, .ColumnPageHeader-Wrapper").remove();$("[class='Sticky RichContent-actions is-fixed is-bottom']").removeClass("Sticky is-fixed is-bottom");window.print();`);
+				break;
             default:
                 break;
 
