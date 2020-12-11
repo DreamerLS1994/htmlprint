@@ -35,7 +35,7 @@ $('#print_html').click(() => {
         switch(host)
         {
             case "blog.csdn.net":
-                executeScriptToCurrentTab(`$(".toc, .bottom-pub-footer, .csdn-side-toolbar, .template-box").remove();$("#comment_title, #comment_list, #comment_bar, #comment_form, .announce, #ad_cen, #ad_bot").remove();$(".nav_top_2011, #header, #navigator, #side, #dmp_ad_58").remove();$(".p4course_target, .comment-box, .recommend-box, #csdn-toolbar, #tool-box").remove();$("aside").remove();$(".tool-box, .more-toolbox, .csdn-side-toolbar").remove();$("main").css('display','content'); $("main").css('float','left'); $("main").css('width','1000px'); $("main").css('margin-left','-300px'); window.print();`);
+                executeScriptToCurrentTab(`$(".toc, .bottom-pub-footer, .csdn-side-toolbar, .template-box, .blog-footer-bottom").remove();$("#comment_title, #comment_list, #comment_bar, #comment_form, .announce, #ad_cen, #ad_bot").remove();$(".nav_top_2011, #header, #navigator, #side, #dmp_ad_58").remove();$(".p4course_target, .comment-box, .recommend-box, #csdn-toolbar, #tool-box").remove();$("aside").remove();$(".tool-box, .more-toolbox, .csdn-side-toolbar").remove();$("main").css('display','content'); $("main").css('float','left'); $("main").css('width','1000px'); $("main").css('margin-left','-300px'); window.print();`);
                 break;
             case "www.jianshu.com":
                 executeScriptToCurrentTab(`$("header").remove();$("aside").remove();$("footer").remove();$("#note-page-comment").remove();$(".sFiE8U").remove();$("._13lIbp").remove();$(".d0hShY").remove();$("._1kCBjS").remove();$("._3Pnjry").remove();$(".ant-back-top").remove(); window.print();`)
