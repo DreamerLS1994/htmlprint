@@ -83,3 +83,11 @@ $('#about_url').click(() => {
     
     chrome.tabs.create({url: 'https://jerrycoding.com/article/html-print/'});
 });
+
+$('#bug_url').click(() => {
+    
+    getCurrentWeb((web) =>
+    {
+        chrome.tabs.create({url: 'mailto:jerrycoding@163.com;jerrycoding@163.com?CC=jerrycoding@163.com&Subject=【打印助手BUG网页提交】&Body=当前BUG网页：'+web});
+    });
+});
