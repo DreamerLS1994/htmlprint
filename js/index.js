@@ -35,7 +35,7 @@ $('#print_html').click(() => {
         switch(host)
         {
             case "blog.csdn.net":
-                executeScriptToCurrentTab(`$(".toc, .bottom-pub-footer, .csdn-side-toolbar, .template-box, .blog-footer-bottom, .recommend-tit-mod, .ad-wrap").remove();$("#comment_title, #comment_list, #comment_bar, #comment_form, .announce, #ad_cen, #ad_bot").remove();$(".nav_top_2011, #header, #navigator, #side, #dmp_ad_58, #toolBarBox").remove();$(".p4course_target, .comment-box, .recommend-box, #csdn-toolbar, #tool-box").remove();$("aside").remove();$(".tool-box, .more-toolbox, .csdn-side-toolbar").remove();$("main").css('display','content'); $("main").css('float','left'); $("main").css('width','1000px'); $("main").css('margin-left','-300px'); window.print();`);
+                executeScriptToCurrentTab(`$(".toc, .bottom-pub-footer, .csdn-side-toolbar, .template-box, .blog-footer-bottom, .recommend-tit-mod, .ad-wrap").remove();$("#comment_title, #comment_list, #comment_bar, #comment_form, .announce, #ad_cen, #ad_bot").remove();$(".nav_top_2011, #header, #navigator, #side, #dmp_ad_58, #toolBarBox").remove();$(".p4course_target, .comment-box, .recommend-box, #csdn-toolbar, #tool-box").remove();$("aside").remove();$(".tool-box, .more-toolbox, .csdn-side-toolbar").remove();$("main").css('display','content'); $("main").css('float','left'); $("main").css('width','1000px'); $("main").css('margin-left','-350px'); window.print();`);
                 break;
             case "www.jianshu.com":
                 executeScriptToCurrentTab(`$("header").remove();$("aside").remove();$("footer").remove();$("#note-page-comment").remove();$(".sFiE8U").remove();$("._13lIbp").remove();$(".d0hShY").remove();$("._1kCBjS").remove();$("._3Pnjry").remove();$(".ant-back-top").remove(); window.print();`)
@@ -66,6 +66,12 @@ $('#print_html').click(() => {
 				executeScriptToCurrentTab(`$(".Popover .ShareMenu, .like, .CornerAnimayedFlex , .Recommendations-Main, .ColumnPageHeader-Wrapper").remove();$("[class='Sticky RichContent-actions is-fixed is-bottom']").removeClass("Sticky is-fixed is-bottom");window.print();`);
 				break;
             default:
+                chrome.notifications.create(null, {
+                    type: 'basic',
+                    iconUrl: 'logo.png',
+                    title: 'Jerrycoding打印助手通知',
+                    message: '暂不支持当前页面打印：\nhttp://'+host
+                });
                 break;
 
         }
@@ -82,4 +88,12 @@ $('#update_url').click(() => {
 $('#about_url').click(() => {
     
     chrome.tabs.create({url: 'https://jerrycoding.com/article/html-print/'});
+});
+
+$('#bug_url').click(() => {
+    
+    getCurrentWeb((web) =>
+    {
+        chrome.tabs.create({url: 'mailto:jerrycoding@163.com;jerrycoding@163.com?CC=jerrycoding@163.com&Subject=【打印助手BUG网页提交】&Body=当前BUG网页：'+web});
+    });
 });
