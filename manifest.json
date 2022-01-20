@@ -1,7 +1,7 @@
 {
     "name": "网页打印助手",
     "description" : "网页打印助手 使用帮助：https://jerrycoding.com/article/html-print/",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "manifest_version": 2,
 
     "browser_action": {
