@@ -3,6 +3,9 @@
 
   var PICKER_TOOLBAR_ID = 'print-picker-toolbar';
   var PICKER_STYLE_ID = 'print-picker-styles';
+  var PRINT_STYLE_ID = 'print-helper-styles';
+  var PRINT_ORDER_CONTAINER = 'print-order-container';
+  var printStylesInjected = false;
 
   var pickerActive = false;
   var hoveredBlock = null;
@@ -11,9 +14,9 @@
 
   // ========== 打印前准备 ==========
   function expandCollapsedContent() {
-    var sels = ['[class*="show-more"]', '[class*="showMore"]', '[class*="expand"]',
-      '[class*="read-more"]', '[class*="read-all"]', '[class*="full-article"]',
-      'button[class*="more"]', 'a[class*="more"]', '[class*="unfold"]', '[class*="open"]'];
+    var sels = ['button[class*="show-more"]', 'button[class*="showMore"]', 'button[class*="expand"]',
+      'button[class*="read-more"]', 'button[class*="read-all"]', 'button[class*="unfold"]',
+      'div[class*="show-more"]', 'div[class*="expand"]', 'span[class*="show-more"]', 'span[class*="expand"]'];
     for (var i = 0; i < sels.length; i++) {
       var els = document.querySelectorAll(sels[i]);
       for (var j = 0; j < els.length; j++) { try { els[j].click(); } catch (_) { } }
@@ -40,36 +43,37 @@
     });
   }
 
-  // ========== 样式表复制 ==========
-  function copyStylesheets(targetDoc) {
-    document.querySelectorAll('style').forEach(function (s) {
-      if (s.id === PICKER_STYLE_ID) return;
-      targetDoc.head.appendChild(s.cloneNode(true));
-    });
-    for (var i = 0; i < document.styleSheets.length; i++) {
-      var sheet = document.styleSheets[i];
-      if (sheet.ownerNode && sheet.ownerNode.id === PICKER_STYLE_ID) continue;
-      try {
-        var rules = sheet.cssRules || sheet.rules;
-        if (rules && rules.length > 0) {
-          var css = '';
-          for (var j = 0; j < rules.length; j++) {
-            css += rules[j].cssText + '\n';
-          }
-          var style = targetDoc.createElement('style');
-          style.textContent = css;
-          targetDoc.head.appendChild(style);
-        }
-      } catch (e) {
-        if (sheet.ownerNode && sheet.ownerNode.cloneNode) {
-          targetDoc.head.appendChild(sheet.ownerNode.cloneNode(true));
-        }
-      }
-    }
+  // ========== 打印样式注入 ==========
+  function injectPrintStyles() {
+    if (printStylesInjected) return;
+    if (document.getElementById(PRINT_STYLE_ID)) { printStylesInjected = true; return; }
+    var style = document.createElement('style');
+    style.id = PRINT_STYLE_ID;
+    style.textContent = [
+      '@media print {',
+      '  html, body { margin:0!important; padding:0!important; background:white!important; color:black!important; line-height:1.6!important; overflow:visible!important; width:auto!important; height:auto!important; }',
+      '  * { -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }',
+      '  [data-print-wrap] { display:block!important; margin:0!important; padding:0!important; border:none!important; background:none!important; box-shadow:none!important; overflow:visible!important; width:auto!important; height:auto!important; max-width:100%!important; position:static!important; float:none!important; transform:none!important; }',
+      '  #' + PICKER_TOOLBAR_ID + ' { display:none!important; }',
+      '  .print-picker-badge { display:none!important; }',
+      '  .print-picker-hover, .print-picker-selected { outline:none!important; }',
+      '  .print-page-break { page-break-after:always!important; }',
+      '  #' + PRINT_ORDER_CONTAINER + ' > :last-child { page-break-after:auto!important; }',
+      '  img { max-width:100%!important; max-height:22cm!important; object-fit:contain!important; page-break-inside:avoid!important; }',
+      '  h1,h2,h3,h4,h5,h6 { page-break-after:avoid!important; page-break-inside:avoid!important; }',
+      '  p,li,blockquote { orphans:3!important; widows:3!important; }',
+      '  pre { white-space:pre-wrap!important; word-wrap:break-word!important; overflow:visible!important; page-break-inside:avoid!important; }',
+      '  tr { page-break-inside:avoid!important; }',
+      '  thead { display:table-header-group!important; }',
+      '  @page { margin:2cm; size:auto; }',
+      '}'
+    ].join('\n');
+    document.head.appendChild(style);
+    printStylesInjected = true;
   }
 
   // ========== 祖先包装器（保持CSS选择器匹配） ==========
-  function createAncestorWrapper(el, targetDoc) {
+  function createAncestorWrapper(el) {
     var ancestors = [];
     var cur = el.parentElement;
     while (cur && cur !== document.body && cur !== document.documentElement) {
@@ -77,11 +81,11 @@
       cur = cur.parentElement;
     }
 
-    var root = targetDoc.createDocumentFragment();
+    var root = document.createDocumentFragment();
     var current = root;
 
     ancestors.forEach(function (anc) {
-      var wrapper = targetDoc.createElement(anc.tagName.toLowerCase());
+      var wrapper = document.createElement(anc.tagName.toLowerCase());
       wrapper.className = anc.className;
       if (anc.id) wrapper.id = anc.id;
       wrapper.setAttribute('data-print-wrap', '');
@@ -116,59 +120,52 @@
     loadLazyImages();
     suppressPickerEvents = false;
 
-    var iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;height:600px;border:none;';
-    document.body.appendChild(iframe);
-
-    var doc = iframe.contentDocument;
-
-    var baseEl = doc.createElement('base');
-    baseEl.href = document.baseURI;
-    doc.head.appendChild(baseEl);
-
-    copyStylesheets(doc);
-
-    var printStyle = doc.createElement('style');
-    printStyle.textContent = [
-      'body { margin:0; padding:0; background:white; color:black; line-height:1.6; }',
-      '[data-print-wrap] { display:block!important; margin:0!important; padding:0!important; border:none!important; background:none!important; box-shadow:none!important; overflow:visible!important; width:auto!important; height:auto!important; max-width:100%!important; position:static!important; float:none!important; transform:none!important; }',
-      '.print-page-break { page-break-after:always; }',
-      '@media print {',
-      '  * { -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }',
-      '  img { max-width:100%!important; max-height:22cm!important; object-fit:contain!important; page-break-inside:avoid!important; }',
-      '  h1,h2,h3,h4,h5,h6 { page-break-after:avoid!important; page-break-inside:avoid!important; }',
-      '  p,li,blockquote { orphans:3!important; widows:3!important; }',
-      '  pre { white-space:pre-wrap!important; word-wrap:break-word!important; overflow:visible!important; page-break-inside:avoid!important; }',
-      '  tr { page-break-inside:avoid!important; }',
-      '  thead { display:table-header-group!important; }',
-      '  @page { margin:2cm; size:auto; }',
-      '}'
-    ].join('\n');
-    doc.head.appendChild(printStyle);
+    var container = document.createElement('div');
+    container.id = PRINT_ORDER_CONTAINER;
 
     selectedElements.forEach(function (sel, idx) {
-      var wrapper = createAncestorWrapper(sel, doc);
-      doc.body.appendChild(wrapper);
+      var wrapper = createAncestorWrapper(sel);
+      container.appendChild(wrapper);
       if (idx < selectedElements.length - 1) {
-        var pb = doc.createElement('div');
+        var pb = document.createElement('div');
         pb.className = 'print-page-break';
-        doc.body.appendChild(pb);
+        container.appendChild(pb);
       }
     });
+    document.body.appendChild(container);
 
-    var cleaned = false;
-    var cleanup = function () {
-      if (cleaned) return;
-      cleaned = true;
-      iframe.remove();
+    var hiddenEls = [];
+    var children = document.body.children;
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      if (child.id === PRINT_ORDER_CONTAINER) continue;
+      hiddenEls.push({ el: child, cssText: child.style.cssText });
+      child.style.setProperty('display', 'none', 'important');
+    }
+
+    var styleBackups = [];
+    styleBackups.push({ el: document.body, cssText: document.body.style.cssText });
+    document.body.style.setProperty('margin', '0', 'important');
+    document.body.style.setProperty('padding', '0', 'important');
+    document.body.style.setProperty('overflow', 'visible', 'important');
+    document.body.style.setProperty('width', 'auto', 'important');
+    document.body.style.setProperty('height', 'auto', 'important');
+
+    injectPrintStyles();
+    window.print();
+
+    var done = function () {
+      styleBackups.forEach(function (b) { b.el.style.cssText = b.cssText; });
+      hiddenEls.forEach(function (item) { item.el.style.cssText = item.cssText; });
+      container.remove();
+      var ps = document.getElementById(PRINT_STYLE_ID);
+      if (ps) ps.remove();
+      printStylesInjected = false;
+      window.removeEventListener('afterprint', done);
+      clearTimeout(ft);
     };
-
-    iframe.contentWindow.addEventListener('afterprint', cleanup);
-    setTimeout(cleanup, 10000);
-
-    setTimeout(function () {
-      iframe.contentWindow.print();
-    }, 200);
+    window.addEventListener('afterprint', done);
+    var ft = setTimeout(done, 5000);
   }
 
   // ================================================================
