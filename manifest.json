@@ -18,11 +18,12 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["libs/Readability.js", "content.js"],
+      "js": ["content.js"],
       "run_at": "document_idle"
     }
   ],
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "scripting"
   ]
 }

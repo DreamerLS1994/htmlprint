@@ -258,6 +258,7 @@
       '  .btn-print { background:#34a853; color:#fff; } .btn-print:hover { background:#2d9249; }',
       '  .btn-clear { background:rgba(255,255,255,0.12); color:#ccc; } .btn-clear:hover { background:rgba(255,255,255,0.2); }',
       '  .btn-help { background:rgba(255,255,255,0.08); color:#999; } .btn-help:hover { background:rgba(255,255,255,0.15); color:#fff; }',
+      '  .btn-update { background:rgba(255,255,255,0.08); color:#999; } .btn-update:hover { background:rgba(255,255,255,0.15); color:#fff; }',
       '  .btn-exit { background:rgba(255,255,255,0.08); color:#999; } .btn-exit:hover { background:rgba(255,255,255,0.15); color:#fff; }',
       '  .tip { color:#666; font-size:11px; }',
       '</style>',
@@ -269,6 +270,7 @@
       '  <button class="btn btn-print" id="pp-print">\u6253\u5370</button>',
       '  <button class="btn btn-clear" id="pp-clear">\u6E05\u9664</button>',
       '  <button class="btn btn-help" id="pp-help">\u5E2E\u52A9</button>',
+      '  <button class="btn btn-update" id="pp-update">\u68C0\u67E5\u66F4\u65B0</button>',
       '  <button class="btn btn-exit" id="pp-exit">\u9000\u51FA</button>',
       '</div>'
     ].join('\n');
@@ -277,7 +279,31 @@
     shadow.getElementById('pp-print').addEventListener('click', function (e) { e.stopPropagation(); printSelectedElements(); });
     shadow.getElementById('pp-clear').addEventListener('click', function (e) { e.stopPropagation(); clearSelections(); });
     shadow.getElementById('pp-help').addEventListener('click', function (e) { e.stopPropagation(); window.open('https://jerrycoding.com/article/html-print/', '_blank'); });
+    shadow.getElementById('pp-update').addEventListener('click', function (e) { e.stopPropagation(); checkUpdate(); });
     shadow.getElementById('pp-exit').addEventListener('click', function (e) { e.stopPropagation(); exitPickerMode(); });
+  }
+
+  function checkUpdate() {
+    var host = document.getElementById(PICKER_TOOLBAR_ID);
+    if (!host) return;
+    var btn = host.shadowRoot.getElementById('pp-update');
+    var oldText = btn.textContent;
+    btn.textContent = '检查中...';
+    btn.disabled = true;
+
+    chrome.runtime.sendMessage({ type: 'CHECK_UPDATE' }, function (resp) {
+      btn.textContent = oldText;
+      btn.disabled = false;
+      if (!resp) { alert('检查更新失败：无响应'); return; }
+      if (resp.error) { alert('检查更新失败：网络错误'); return; }
+      if (resp.hasUpdate) {
+        if (confirm('发现新版本！\n\n当前版本：' + resp.current + '\n最新版本：' + resp.latest + '\n\n点击确定下载更新。')) {
+          window.open(resp.url, '_blank');
+        }
+      } else {
+        alert('当前已是最新版本（' + resp.current + '）');
+      }
+    });
   }
 
   function removeToolbar() {
