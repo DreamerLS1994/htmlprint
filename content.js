@@ -278,7 +278,7 @@
 
     shadow.getElementById('pp-print').addEventListener('click', function (e) { e.stopPropagation(); printSelectedElements(); });
     shadow.getElementById('pp-clear').addEventListener('click', function (e) { e.stopPropagation(); clearSelections(); });
-    shadow.getElementById('pp-help').addEventListener('click', function (e) { e.stopPropagation(); window.open('https://jerrycoding.com/article/html-print/', '_blank'); });
+    shadow.getElementById('pp-help').addEventListener('click', function (e) { e.stopPropagation(); window.open('https://sipo426.top/textfiles/rmadsprint.md', '_blank'); });
     shadow.getElementById('pp-update').addEventListener('click', function (e) { e.stopPropagation(); checkUpdate(); });
     shadow.getElementById('pp-exit').addEventListener('click', function (e) { e.stopPropagation(); exitPickerMode(); });
   }
