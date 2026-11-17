@@ -96,7 +96,10 @@ htmlprint/
 │   └── images/              # README 截图素材
 ├── scripts/
 │   └── generate_icons.py    # 从 logo.png 生成多尺寸图标
-├── pack.bat                 # Windows 打包脚本
+├── .github/
+│   └── workflows/
+│       └── release.yml      # 推送 tag 时自动打包并发布 Release
+├── pack.bat                 # Windows 本地打包脚本
 ├── LICENSE
 └── THIRD-PARTY-NOTICES.md
 ```
@@ -119,10 +122,11 @@ python scripts/generate_icons.py
 
 发布新版本时：
 
-1. 修改 `manifest.json` 中的 `version`。
-2. 运行 `pack.bat` 生成 `htmlprint-v{版本}.zip`。
-3. 在 GitHub 创建同版本号的 Release，并上传该 zip 作为资产。Tag 使用 `{版本}` 或 `v{版本}` 均可（如 `1.0.0`、`v1.0.0`）；若 Tag 与 `manifest.json` 的 `version` 不一致，版本比较会失效。
+1. 修改 `manifest.json` 中的 `version`，提交并推送。
+2. 创建并推送同版本号的 tag（如 `v1.0.1`）。GitHub Actions 会读取 manifest 版本，自动打包 `htmlprint-v{版本}.zip` 并创建或更新 Release。
+3. Tag 与 `manifest.json` 的 `version` 必须一致（`{版本}` 或 `v{版本}` 均可），否则工作流会直接失败。
 4. 扩展的「检查更新」会调用 GitHub Releases API，优先使用 Release 中的 zip 资产作为下载地址；本地版本高于线上最新 Release 时会提示「正在使用开发版本」。
+5. 需要在本地验证时，仍可运行 `pack.bat` 生成同内容的 zip。
 
 ## 路线图
 
