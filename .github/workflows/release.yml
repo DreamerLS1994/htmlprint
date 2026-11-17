@@ -1,0 +1,54 @@
+name: Release
+
+"on":
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要创建或更新的版本 tag，例如 v1.0.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 读取版本号
+        id: version
+        run: |
+          VERSION=$(node -p "require('./manifest.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: 打包扩展
+        run: |
+          mkdir -p dist/icons
+          cp manifest.json background.js content.js dist/
+          cp icons/*.png dist/icons/
+          cp LICENSE dist/
+          cd dist
+          zip -r "../htmlprint-v${{ steps.version.outputs.version }}.zip" .
+
+      - name: 创建或更新 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ "$TAG" != "$VERSION" ] && [ "$TAG" != "v$VERSION" ]; then
+            echo "Tag $TAG 与 manifest.json 版本 $VERSION 不一致" >&2
+            exit 1
+          fi
+          ZIP="htmlprint-v$VERSION.zip"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ZIP" --clobber
+          else
+            gh release create "$TAG" "$ZIP" \
+              --title "网页打印助手 $TAG" \
+              --notes "网页打印助手 $TAG。更新检查通过 GitHub Releases 获取版本，zip 可直接加载到 Chrome/Edge。"
+          fi

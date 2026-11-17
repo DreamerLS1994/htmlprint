@@ -1,0 +1,17 @@
+node_modules/
+# 打包产物
+_pack_tmp/
+*.zip
+*.crx
+*.pem
+
+# IDE / 本地索引
+.codeartsdoer/
+.vscode/
+.idea/
+
+# 系统与日志
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
