@@ -25,6 +25,10 @@ jobs:
           VERSION=$(node -p "require('./manifest.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: 校验 version.json
+        run: |
+          node -e "const m=require('./manifest.json'); const v=require('./version.json'); if (m.version !== v.version) { console.error('version.json 与 manifest.json 版本不一致'); process.exit(1); }"
+
       - name: 打包扩展
         run: |
           mkdir -p dist/icons

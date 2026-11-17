@@ -64,13 +64,16 @@
 
 - `activeTab`、`scripting`：点击图标后与当前标签页交互。
 - `content_scripts` 匹配 `<all_urls>`：选择逻辑需要注入到当前页面。
-- `host_permissions`（`https://api.github.com/*`）：仅用于「检查更新」读取本仓库的 Release 信息。
+- `host_permissions`（`https://api.github.com/*`、`https://cdn.jsdelivr.net/*`）：仅用于「检查更新」读取版本信息。
+- `storage`：在本地缓存更新检查结果，避免频繁请求。
 
 数据说明：
 
 - 扩展**不收集、不上传**任何页面内容、浏览记录或个人数据。
-- 点击工具栏「检查更新」时，只会请求 GitHub Releases API（`api.github.com`），请求不携带任何本地数据；除此之外没有外部网络请求。
-- 若仓库尚未发布 Release，会提示「当前还没有发布版本」，不会尝试连接其他服务器。
+- 点击「检查更新」优先请求 GitHub Releases API（`api.github.com`）；若 API 请求失败（例如未认证接口限流），会回退到 jsDelivr 上的 `version.json` 获取版本。
+- 检查结果会在本地缓存 1 小时，期间重复点击不会再次请求；缓存仅包含版本号、下载地址与检查时间。
+- 若仓库尚未发布 Release，会提示「当前还没有发布版本」，可选择打开 Releases 页面。
+- 请求不携带任何页面内容或个人信息。
 
 ## 已知限制
 
@@ -86,6 +89,7 @@
 ```
 htmlprint/
 ├── manifest.json            # 扩展配置（Manifest V3）
+├── version.json             # 更新检查备用源（jsDelivr 读取）
 ├── background.js            # 后台 Service Worker（图标点击、更新检查）
 ├── content.js               # 核心逻辑（元素选择、打印、样式注入）
 ├── icons/                   # 16/32/48/128 正方形图标
@@ -122,10 +126,10 @@ python scripts/generate_icons.py
 
 发布新版本时：
 
-1. 修改 `manifest.json` 中的 `version`，提交并推送。
-2. 创建并推送同版本号的 tag（如 `v1.0.1`）。GitHub Actions 会读取 manifest 版本，自动打包 `htmlprint-v{版本}.zip` 并创建或更新 Release。
+1. 修改 `manifest.json` 的 `version`，并同步更新 `version.json` 的 `version`、`url`、`download`，提交并推送。
+2. 创建并推送同版本号的 tag（如 `v1.0.1`）。GitHub Actions 会校验版本一致性，自动打包 `htmlprint-v{版本}.zip` 并创建或更新 Release。
 3. Tag 与 `manifest.json` 的 `version` 必须一致（`{版本}` 或 `v{版本}` 均可），否则工作流会直接失败。
-4. 扩展的「检查更新」会调用 GitHub Releases API，优先使用 Release 中的 zip 资产作为下载地址；本地版本高于线上最新 Release 时会提示「正在使用开发版本」。
+4. 扩展的「检查更新」优先调用 GitHub Releases API，失败时回退到 jsDelivr 上的 `version.json`；本地版本高于线上最新 Release 时会提示「正在使用开发版本」。
 5. 需要在本地验证时，仍可运行 `pack.bat` 生成同内容的 zip。
 
 ## 路线图
@@ -135,7 +139,7 @@ python scripts/generate_icons.py
 - [ ] 打印后还原被「展开更多」修改的页面状态
 - [ ] 可选接入 `libs/Readability.js` 实现一键正文打印
 - [ ] 界面国际化（zh-CN / en）
-- [ ] GitHub Actions 自动打包与 Release
+- [x] GitHub Actions 自动打包与 Release
 
 ## 贡献
 

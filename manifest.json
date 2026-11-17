@@ -1,7 +1,7 @@
 {
   "name": "网页打印助手",
   "description": "选择打印 - 框选页面区域，干净打印",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 3,
   "minimum_chrome_version": "88",
   "homepage_url": "https://github.com/DreamerLS1994/htmlprint",
@@ -32,9 +32,11 @@
   ],
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "host_permissions": [
-    "https://api.github.com/*"
+    "https://api.github.com/*",
+    "https://cdn.jsdelivr.net/*"
   ]
 }

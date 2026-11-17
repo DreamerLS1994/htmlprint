@@ -5,6 +5,7 @@
   var PICKER_STYLE_ID = 'print-picker-styles';
   var PRINT_STYLE_ID = 'print-helper-styles';
   var PRINT_ORDER_CONTAINER = 'print-order-container';
+  var RELEASES_PAGE_URL = 'https://github.com/DreamerLS1994/htmlprint/releases';
   var printStylesInjected = false;
 
   var pickerActive = false;
@@ -609,7 +610,9 @@
       btn.disabled = false;
       if (!resp) { alert('检查更新失败：扩展未响应'); return; }
       if (resp.code === 'NO_RELEASE') {
-        alert('当前还没有发布版本。\n\n请在 GitHub Releases 页面查看最新动态。');
+        if (confirm('当前还没有发布版本。\n\n是否打开 GitHub Releases 页面查看？')) {
+          window.open(RELEASES_PAGE_URL, '_blank');
+        }
         return;
       }
       if (resp.hasUpdate) {
@@ -622,19 +625,35 @@
         alert('当前版本（' + resp.current + '）高于线上最新发布（' + resp.latest + '），可能正在使用开发版本。');
         return;
       }
+      if (resp.code === 'RATE_LIMITED' || resp.code === 'FORBIDDEN') {
+        if (confirm(describeUpdateError(resp.code, resp) + '\n\n是否打开 GitHub Releases 页面手动下载？')) {
+          window.open(RELEASES_PAGE_URL, '_blank');
+        }
+        return;
+      }
       if (resp.code) {
-        alert('检查更新失败：' + describeUpdateError(resp.code));
+        alert('检查更新失败：' + describeUpdateError(resp.code, resp));
         return;
       }
       alert('当前已是最新版本（' + resp.current + '）');
     });
   }
 
-  function describeUpdateError(code) {
-    if (code === 'HTTP_ERROR_403') return 'GitHub 接口请求过于频繁，请稍后重试';
-    if (code.indexOf('HTTP_ERROR_') === 0) return 'GitHub 接口请求失败';
+  function describeUpdateError(code, resp) {
+    if (code === 'RATE_LIMITED') {
+      var resetTime = formatResetTime(resp && resp.resetAt);
+      return 'GitHub 接口请求次数已用完' + (resetTime ? '，预计 ' + resetTime + ' 后恢复' : '，请稍后再试');
+    }
+    if (code === 'FORBIDDEN') return 'GitHub 拒绝了请求，可能由网络代理或访问限制导致';
+    if (code && code.indexOf('HTTP_ERROR_') === 0) return 'GitHub 接口请求失败';
     if (code === 'INVALID_RELEASE') return '发布信息格式异常';
     return '网络错误，请检查网络后重试';
+  }
+
+  function formatResetTime(timestamp) {
+    if (!timestamp || timestamp <= Date.now()) return '';
+    var date = new Date(timestamp);
+    return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
   }
 
   function removeToolbar() {
